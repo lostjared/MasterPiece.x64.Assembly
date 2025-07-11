@@ -7,6 +7,7 @@
     .comm gval, 4
     .comm bval, 4
     .extern renderer_ptr
+    .extern score
     .globl rval
     .globl gval
     .globl bval
@@ -33,6 +34,7 @@ FillGrid:
     pop %rdi
     movl %edi, %ebx
     movl $0, %ecx
+    movl $0, score(%rip)
 fill_y:
     movl $0, %r9d
 fill_x:
@@ -312,6 +314,7 @@ horizontal_match_found:
     movl %r13d, %edx
     addl $2, %edx
     call SetGrid
+    addl $1, score(%rip)
     jmp next_iteration
 
 vertical_match_found:
@@ -330,6 +333,7 @@ vertical_match_found:
     addl $2, %esi
     movl %r13d, %edx
     call SetGrid
+    addl $1, score(%rip)
     jmp next_iteration
 
 diagonal_dr_match_found:
@@ -350,6 +354,7 @@ diagonal_dr_match_found:
     movl %r13d, %edx
     addl $2, %edx
     call SetGrid
+    addl $1, score(%rip)
     jmp next_iteration
 
 diagonal_dl_match_found:
@@ -370,6 +375,7 @@ diagonal_dl_match_found:
     movl %r13d, %edx
     subl $2, %edx
     call SetGrid
+    addl $1, score(%rip)
     jmp next_iteration
 
 end_check:

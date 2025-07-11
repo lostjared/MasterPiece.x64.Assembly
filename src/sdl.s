@@ -3,13 +3,17 @@
     background_path: .asciz "bg.bmp"
     error_msg: .asciz "Error loading background image\n"
     open_mode: .asciz "rb"
+    format_string: .asciz "Score: %d"
 .section .bss
     .lcomm window_ptr, 8      
     .lcomm bg_surface, 8
     .lcomm bg_texture, 8
     .comm renderer_ptr, 8    
     .lcomm event_buffer, 64  
+    .lcomm text_buffer, 256
+    .comm score, 4
     .globl renderer_ptr 
+    .globl score
 .section .text
     .extern SDL_Init
     .extern SDL_CreateWindow
@@ -37,6 +41,10 @@
     .extern ShiftUp
     .extern CheckGrid
     .extern CheckMoveDown
+    .extern init_text
+    .extern quit_text
+    .extern printtext
+    .extern snprintf
     .global main
 main:
     push %rbp
@@ -90,6 +98,8 @@ main:
     movq %rax, bg_texture(%rip)
     movq bg_surface(%rip), %rdi
     call SDL_FreeSurface
+    movl $24, %edi
+    call init_text
 main_loop:
     movq $event_buffer, %rdi
     call SDL_PollEvent
@@ -132,6 +142,18 @@ render_frame:
     movq renderer_ptr(%rip), %rdi
     call DrawGrid
     call DrawBlocks
+
+    #draw score
+    lea text_buffer(%rip), %rdi
+    movl $256, %esi
+    lea format_string(%rip), %rdx
+    movl score(%rip), %ecx
+    call snprintf
+    movq renderer_ptr(%rip), %rdi
+    lea text_buffer(%rip), %rsi
+    movl $15, %edx
+    movl $15, %ecx
+    call printtext
     movq renderer_ptr(%rip), %rdi
     call SDL_RenderPresent
     call SDL_GetTicks
@@ -171,6 +193,7 @@ cleanup_all:
     movq renderer_ptr(%rip), %rdi
     call SDL_DestroyRenderer
 cleanup_window:
+    call quit_text
     movq window_ptr(%rip), %rdi
     call SDL_DestroyWindow
 cleanup_and_exit:
