@@ -1,5 +1,7 @@
 # MasterPiece.x64.Assembly
 Small x86_64 Assembly Language Demo for Linux
+<img width="716" height="577" alt="Screenshot 2025-07-14 061842" src="https://github.com/user-attachments/assets/067685dd-19a7-48e3-ad76-89f1081662ce" />
+<img width="716" height="577" alt="Screenshot 2025-07-14 061915" src="https://github.com/user-attachments/assets/7f180cee-3353-406c-8ac4-57964a47be12" />
 
 Build and Run:
 
