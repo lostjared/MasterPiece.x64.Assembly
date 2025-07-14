@@ -242,7 +242,7 @@ skip_move_down:
     call SDL_RenderCopy
     movq renderer_ptr(%rip), %rdi
     call SDL_RenderPresent
-    movl $4, %edi
+    movl $1, %edi
     call SDL_Delay
     jmp main_loop
 key_left:
