@@ -1,16 +1,21 @@
 .section .data
     window_title: .asciz "MasterPiece Assembly"
     background_path: .asciz "bg.bmp"
+    intro_path: .asciz "intro.bmp"
     error_msg: .asciz "Error loading background image\n"
     open_mode: .asciz "rb"
     format_string: .asciz "Score: %d"
+    mouse_x: .asciz "Mouse X,Y: %d %d\n"
 .section .bss
     .lcomm window_ptr, 8      
     .lcomm bg_surface, 8
     .lcomm bg_texture, 8
+    .lcomm intro_surface, 8
+    .lcomm intro_texture, 8
     .comm renderer_ptr, 8    
     .lcomm event_buffer, 64  
     .lcomm text_buffer, 256
+    .lcomm game_screen, 8
     .comm score, 4
     .globl renderer_ptr 
     .globl score
@@ -78,7 +83,7 @@ main:
     jz cleanup_window
     movq %rax, renderer_ptr(%rip)
     call InitBlocks
-
+#load bg
     lea background_path(%rip), %rdi
     lea open_mode(%rip), %rsi
     call SDL_RWFromFile
@@ -98,30 +103,81 @@ main:
     movq %rax, bg_texture(%rip)
     movq bg_surface(%rip), %rdi
     call SDL_FreeSurface
+#load intro
+    lea intro_path(%rip), %rdi
+    lea open_mode(%rip), %rsi
+    call SDL_RWFromFile
+    cmp $0, %rax
+    je error_exit
+    mov %rax, %rdi
+    movl $1, %esi
+    call SDL_LoadBMP_RW
+    cmp $0, %rax
+    je error_exit
+    movq %rax, intro_surface(%rip)
+    movq intro_surface(%rip), %rsi
+    movq renderer_ptr(%rip), %rdi
+    call SDL_CreateTextureFromSurface
+    cmp $0, %rax
+    je error_exit
+    movq %rax, intro_texture(%rip)
+    movq intro_surface(%rip), %rdi
+    call SDL_FreeSurface
+#init text
     movl $24, %edi
     call init_text
+#init screen
+    movq $0, game_screen(%rip)
 main_loop:
     movq $event_buffer, %rdi
     call SDL_PollEvent
     testl %eax, %eax
-    jz render_frame 
-    movl event_buffer, %eax
-    cmpl $0x100, %eax    
-    je cleanup_all
+    jz render_frame    
+    movl event_buffer(%rip), %eax
+    cmpl $0x100, %eax
+    je  cleanup_all
+
+    cmpq $0, game_screen(%rip)
+    jne .skip_mouse
     cmpl $0x300, %eax
-    jne render_frame
-    movl event_buffer+16, %eax
-    cmpl $0x29, %eax          
-    je cleanup_all
-    movl event_buffer+20, %eax
-    cmpl $0x40000050, %eax    # Left arrow
-    je key_left
-    cmpl $0x4000004F, %eax    # Right arrow
-    je key_right
+    jne check_mouse
+.skip_mouse:
+    cmpq $0, game_screen(%rip)
+    je main_loop
+
+    movl event_buffer+16(%rip), %eax
+    cmpl $0x29, %eax
+    je  cleanup_all
+    movl event_buffer+20(%rip), %eax
+    cmpl $0x40000050, %eax
+    je  key_left
+    cmpl $0x4000004F, %eax
+    je  key_right
     cmpl $0x40000051, %eax
-    je key_down
+    je  key_down
     cmpl $0x40000052, %eax
-    je key_up
+    je  key_up
+    jmp main_loop
+check_mouse:
+    movl event_buffer(%rip), %eax      
+    cmpl $0x401, %eax                  
+    jne render_frame
+
+    movl event_buffer+20(%rip), %eax 
+    cmpl $214, %eax
+    jl  render_frame                 
+    cmpl $360, %eax
+    jge render_frame                 
+
+    movl event_buffer+24(%rip), %eax 
+    cmpl $336, %eax
+    jl  render_frame                 
+    cmpl $393, %eax
+    jge render_frame                 
+    jmp .clicked
+
+.clicked:
+    movq $1, game_screen(%rip)
     jmp main_loop
 render_frame:
     movq renderer_ptr(%rip), %rdi
@@ -132,6 +188,9 @@ render_frame:
     call SDL_SetRenderDrawColor
     movq renderer_ptr(%rip), %rdi
     call SDL_RenderClear
+    cmpq $0, game_screen(%rip)
+    je .draw_intro
+.draw_game:
     movq renderer_ptr(%rip), %rdi
     movq bg_texture(%rip), %rsi
     mov $0, %rdx
@@ -142,7 +201,6 @@ render_frame:
     movq renderer_ptr(%rip), %rdi
     call DrawGrid
     call DrawBlocks
-
     #draw score
     lea text_buffer(%rip), %rdi
     movl $256, %esi
@@ -157,8 +215,8 @@ render_frame:
     movq renderer_ptr(%rip), %rdi
     call SDL_RenderPresent
     call SDL_GetTicks
-    mov %eax, -4(%rbp)              
-    cmpb $0, -8(%rbp)               
+    mov %eax, -4(%rbp)
+    cmpb $0, -8(%rbp) 
     je set_last_ticks
     mov -8(%rbp), %edx              
     sub %edx, %eax                  
@@ -172,6 +230,18 @@ set_last_ticks:
     mov -4(%rbp), %eax
     mov %eax, -8(%rbp)
 skip_move_down:
+    movl $4, %edi
+    call SDL_Delay
+    jmp main_loop
+
+.draw_intro:
+    movq renderer_ptr(%rip), %rdi
+    movq intro_texture(%rip), %rsi
+    mov $0, %rdx
+    mov $0, %rcx
+    call SDL_RenderCopy
+    movq renderer_ptr(%rip), %rdi
+    call SDL_RenderPresent
     movl $4, %edi
     call SDL_Delay
     jmp main_loop
@@ -210,3 +280,4 @@ exit_error:
 
 
 .section .note.GNU-stack, "",@progbits
+
