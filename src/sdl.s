@@ -206,6 +206,7 @@ render_frame:
     movl $256, %esi
     lea format_string(%rip), %rdx
     movl score(%rip), %ecx
+    xor %rax, %rax
     call snprintf
     movq renderer_ptr(%rip), %rdi
     lea text_buffer(%rip), %rsi
