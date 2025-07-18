@@ -29,7 +29,6 @@
 init_text:
     push %rbp   
     mov %rsp, %rbp
-    sub $8, %rsp
     movl %edi, %r13d
     call TTF_Init
     movl %r13d, %esi
@@ -43,7 +42,6 @@ init_text:
     movb $255, color_r(%rip)
     movb $255, color_g(%rip)
     movb $255, color_b(%rip)
-    add $8, %rsp
     mov %rbp, %rsp
     pop %rbp
     ret
