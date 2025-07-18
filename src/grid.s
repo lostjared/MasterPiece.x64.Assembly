@@ -103,26 +103,21 @@ over:
 Rectangle:
     push %rbp
     mov %rsp, %rbp
-    sub $8, %rsp
+    sub $8, %rsp           
     movl %esi, rect1(%rip)      
     movl %edx, rect1+4(%rip)    
     movl %ecx, rect1+8(%rip)    
     movl %r8d, rect1+12(%rip)   
-    lea rect1(%rip), %rsi   
-    mov %rsp, %rax
-    and $15, %rax
-    test %rax, %rax
-    jz .aligned_ok
-    int3           # Will break if not aligned
-.aligned_ok:    
+    lea rect1(%rip), %rsi
+    
     call SDL_RenderFillRect
-    mov %rbp, %rsp
-    pop %rbp
+    add $8, %rsp           
+    pop %rbp               
     ret
 DrawGrid:
     push %rbp
     mov %rsp, %rbp
-    sub $64, %rsp
+    sub $56, %rsp          
     movq %rdi, renderer_ptr(%rip)
     movl $16, -8(%rbp)
     movl $0, -24(%rbp)
@@ -146,7 +141,7 @@ grid_loop_x:
     movl -8(%rbp), %edx
     movl $32, %ecx
     movl $16, %r8d
-    call Rectangle
+    call Rectangle              
 nocolor:
     addl $34, -16(%rbp)
     incl -28(%rbp)
@@ -156,8 +151,7 @@ nocolor:
     incl -24(%rbp)
     cmpl $25, -24(%rbp)        
     jl grid_loop_y 
-    mov %rbp, %rsp
-    pop %rbp
+    leave                       
     ret
 rand_mod5:
     push %rbp
@@ -171,9 +165,9 @@ rand_mod5:
     mov %rbp, %rsp
     pop %rbp
     ret
-# Get value from grid[row][col]
-# Arguments: row in %edi, col in %esi
-# Returns: value in %eax
+
+
+
 GetGrid:
     push %rbp
     mov %rsp, %rbp
@@ -186,8 +180,8 @@ GetGrid:
     mov %rbp, %rsp
     pop %rbp
     ret
-# Set grid[row][col] = value
-# Arguments: value in %edi, row in %esi, col in %edx
+
+
 SetGrid:
     push %rbp
     mov %rsp, %rbp
@@ -200,8 +194,8 @@ SetGrid:
     pop %rbp
     ret
 
-#check for 3 in a row of same color (positive number)
-#horizontal, vertical, and diagonal
+
+
 CheckGrid:
     push %rbp
     mov %rsp, %rbp
@@ -401,7 +395,8 @@ CheckMoveDown:
     push %r13
     push %r14
     push %r15
-
+    sub $8, %rsp           
+    
     movl $23, %r12d
 y_loop_move:
     movl $0, %r13d
@@ -443,12 +438,11 @@ next_cell:
     cmpl $0, %r12d
     jge y_loop_move
 
+    add $8, %rsp           
     pop %r15
     pop %r14
     pop %r13
     pop %r12
-
-    mov %rbp, %rsp
     pop %rbp
     ret
 
