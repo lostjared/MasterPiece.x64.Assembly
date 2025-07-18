@@ -28,6 +28,7 @@
 FillGrid:
     push %rbp
     mov %rsp, %rbp
+    push %rbx
     movl %edi, %ebx
     movl $0, %ecx
     movl $0, score(%rip)
@@ -44,6 +45,7 @@ fill_x:
     inc %ecx    
     cmpl $25, %ecx             
     jl fill_y
+    pop %rbx
     mov %rbp, %rsp
     pop %rbp
     ret
@@ -154,7 +156,8 @@ nocolor:
 rand_mod5:
     push %rbp
     mov %rsp, %rbp
-    call rand          
+    sub $8, %rsp
+    call rand   
     mov $5, %ecx
     cdq                
     idivl %ecx         
@@ -199,6 +202,7 @@ CheckGrid:
     push %r12
     push %r13
     push %r14
+    sub $8, %rsp
     movl $0, %eax
     movl $0, %r12d
 y_loop_check:
@@ -376,6 +380,7 @@ diagonal_dl_match_found:
     jmp next_iteration
 
 end_check:
+    add $8, %rsp
     pop %r14
     pop %r13
     pop %r12
