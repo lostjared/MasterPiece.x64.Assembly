@@ -108,7 +108,13 @@ Rectangle:
     movl %edx, rect1+4(%rip)    
     movl %ecx, rect1+8(%rip)    
     movl %r8d, rect1+12(%rip)   
-    lea rect1(%rip), %rsi       
+    lea rect1(%rip), %rsi   
+    mov %rsp, %rax
+    and $15, %rax
+    test %rax, %rax
+    jz .aligned_ok
+    int3           # Will break if not aligned
+.aligned_ok:    
     call SDL_RenderFillRect
     mov %rbp, %rsp
     pop %rbp
