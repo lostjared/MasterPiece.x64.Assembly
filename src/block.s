@@ -77,24 +77,31 @@ draw_loop:
 
 MoveLeft:
     push %rbp
-    mov %rsp, %rbp    
+    mov %rsp, %rbp
+    sub $8, %rsp
+    
     movl x_cord(%rip), %eax
-    push %rax
     cmp $0, %eax
     je left_over
+    
     movl %eax, %ecx
     dec %ecx
     movl y_cord(%rip), %edx
     addl $2, %edx
+    
     movl %edx, %edi
     movl %ecx, %esi
     call GetGrid
-    cmp $-1, %eax
+    
+    cmp $-1, %eax  
     jne left_over
-    pop %rax
+    
+    movl x_cord(%rip), %eax
     decl %eax
     movl %eax, x_cord(%rip)
+    
 left_over:
+    add $8, %rsp
     mov %rbp, %rsp
     pop %rbp
     ret
@@ -102,23 +109,30 @@ left_over:
 MoveRight:
     push %rbp
     mov %rsp, %rbp
+    sub $8, %rsp
+    
     movl x_cord(%rip), %eax
-    push %rax
     cmp $17, %eax
     je right_over
+    
     movl %eax, %ecx
     incl %ecx
     movl y_cord(%rip), %edx
     addl $2, %edx
+    
     movl %edx, %edi
     movl %ecx, %esi
     call GetGrid
+    
     cmpl $-1, %eax
     jne right_over
-    pop %rax
+    
+    movl x_cord(%rip), %eax
     incl %eax
     movl %eax, x_cord(%rip)
+    
 right_over:
+    add $8, %rsp
     mov %rbp, %rsp
     pop %rbp
     ret

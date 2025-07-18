@@ -28,10 +28,6 @@
 FillGrid:
     push %rbp
     mov %rsp, %rbp
-    push %rdi
-    push %rax
-    pop %rax
-    pop %rdi
     movl %edi, %ebx
     movl $0, %ecx
     movl $0, score(%rip)
@@ -105,6 +101,7 @@ over:
 Rectangle:
     push %rbp
     mov %rsp, %rbp
+    sub $8, %rsp
     movl %esi, rect1(%rip)      
     movl %edx, rect1+4(%rip)    
     movl %ecx, rect1+8(%rip)    
