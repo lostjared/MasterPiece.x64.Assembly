@@ -103,14 +103,12 @@ over:
 Rectangle:
     push %rbp
     mov %rsp, %rbp
-    sub $8, %rsp           
     movl %esi, rect1(%rip)      
     movl %edx, rect1+4(%rip)    
     movl %ecx, rect1+8(%rip)    
     movl %r8d, rect1+12(%rip)   
     movq renderer_ptr(%rip), %rdi 
     lea rect1(%rip), %rsi
-    
     call SDL_RenderFillRect
     add $8, %rsp           
     pop %rbp               
@@ -118,7 +116,7 @@ Rectangle:
 DrawGrid:
     push %rbp
     mov %rsp, %rbp
-    sub $56, %rsp          
+    sub $128, %rsp          
     movq %rdi, renderer_ptr(%rip)
     movl $16, -8(%rbp)
     movl $0, -24(%rbp)
