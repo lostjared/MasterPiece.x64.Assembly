@@ -108,6 +108,7 @@ Rectangle:
     movl %edx, rect1+4(%rip)    
     movl %ecx, rect1+8(%rip)    
     movl %r8d, rect1+12(%rip)   
+    movq renderer_ptr(%rip), %rdi 
     lea rect1(%rip), %rsi
     
     call SDL_RenderFillRect
