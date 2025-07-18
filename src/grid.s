@@ -110,8 +110,7 @@ Rectangle:
     movq renderer_ptr(%rip), %rdi 
     lea rect1(%rip), %rsi
     call SDL_RenderFillRect
-    add $8, %rsp           
-    pop %rbp               
+    leave             
     ret
 DrawGrid:
     push %rbp
