@@ -164,7 +164,7 @@ main_loop:
     je  key_down
     cmpl $0x40000052, %eax
     je  key_up
-    jmp render_frame
+    jmp .process_events
 check_mouse:
     movl event_buffer(%rip), %eax      
     cmpl $0x401, %eax                  
