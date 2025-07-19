@@ -142,14 +142,15 @@ main_loop:
     cmpl $13, %eax   
     je pressed_enter
 
+    movl event_buffer+16(%rip), %eax
+    cmpl $0x29, %eax
+    je  cleanup_all
+
     cmpq $1, game_screen(%rip)
     je .skip_mouse
     cmpl $0x300, %eax
     jne check_mouse
 .skip_mouse:
-    movl event_buffer+16(%rip), %eax
-    cmpl $0x29, %eax
-    je  cleanup_all
     movl event_buffer+20(%rip), %eax
     cmpl $0x40000050, %eax
     je  key_left
