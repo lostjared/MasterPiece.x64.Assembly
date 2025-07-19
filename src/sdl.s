@@ -6,6 +6,7 @@
     open_mode: .asciz "rb"
     format_string: .asciz "Score: %d"
     mouse_x: .asciz "Mouse X,Y: %d %d\n"
+    keypress: .asciz "Key pressed %d\n"
 .section .bss
     .lcomm window_ptr, 8      
     .lcomm bg_surface, 8
@@ -137,14 +138,15 @@ main_loop:
     cmpl $0x100, %eax
     je  cleanup_all
 
-    cmpq $0, game_screen(%rip)
-    jne .skip_mouse
+    movl event_buffer+20(%rip), %eax
+    cmpl $13, %eax   
+    je pressed_enter
+
+    cmpq $1, game_screen(%rip)
+    je .skip_mouse
     cmpl $0x300, %eax
     jne check_mouse
 .skip_mouse:
-    cmpq $0, game_screen(%rip)
-    je main_loop
-
     movl event_buffer+16(%rip), %eax
     cmpl $0x29, %eax
     je  cleanup_all
@@ -157,25 +159,24 @@ main_loop:
     je  key_down
     cmpl $0x40000052, %eax
     je  key_up
-    jmp main_loop
+    jmp render_frame
 check_mouse:
     movl event_buffer(%rip), %eax      
     cmpl $0x401, %eax                  
-    jne render_frame
+    jne main_loop
 
     movl event_buffer+20(%rip), %eax 
     cmpl $214, %eax
-    jl  render_frame                 
+    jl  main_loop                 
     cmpl $360, %eax
-    jge render_frame                 
+    jge main_loop                 
 
     movl event_buffer+24(%rip), %eax 
     cmpl $336, %eax
-    jl  render_frame                 
+    jl  main_loop                 
     cmpl $393, %eax
-    jge render_frame                 
+    jge main_loop                 
     jmp .clicked
-
 .clicked:
     movq $1, game_screen(%rip)
     jmp main_loop
@@ -248,16 +249,19 @@ skip_move_down:
     jmp main_loop
 key_left:
     call MoveLeft
-    jmp render_frame
+    jmp  main_loop
 key_right:
     call MoveRight
-    jmp render_frame
+    jmp main_loop
 key_down:
     call MoveDown
-    jmp render_frame
+    jmp main_loop
 key_up:
     call ShiftUp
-    jmp render_frame
+    jmp main_loop
+pressed_enter:
+    movq $1, game_screen(%rip)
+    jmp main_loop
 cleanup_all:
     movq bg_texture(%rip), %rdi
     call SDL_DestroyTexture
