@@ -130,10 +130,14 @@ main:
 #init screen
     movq $0, game_screen(%rip)
 main_loop:
+    # Process all pending events
+.process_events:
     movq $event_buffer, %rdi
     call SDL_PollEvent
     testl %eax, %eax
-    jz render_frame    
+    jz render_frame            # No more events? Render frame
+    
+    # Process event (your existing code)
     movl event_buffer(%rip), %eax
     cmpl $0x100, %eax
     je  cleanup_all
@@ -164,23 +168,23 @@ main_loop:
 check_mouse:
     movl event_buffer(%rip), %eax      
     cmpl $0x401, %eax                  
-    jne main_loop
+    jne .process_events
 
     movl event_buffer+20(%rip), %eax 
     cmpl $214, %eax
-    jl  main_loop                 
+    jl  .process_events            
     cmpl $360, %eax
-    jge main_loop                 
+    jge .process_events                 
 
     movl event_buffer+24(%rip), %eax 
     cmpl $336, %eax
-    jl  main_loop                 
+    jl  .process_events                 
     cmpl $393, %eax
-    jge main_loop                 
+    jge .process_events                 
     jmp .clicked
 .clicked:
     movq $1, game_screen(%rip)
-    jmp main_loop
+    jmp .process_events
 render_frame:
     movq renderer_ptr(%rip), %rdi
     movl $0, %esi             
@@ -250,19 +254,19 @@ skip_move_down:
     jmp main_loop
 key_left:
     call MoveLeft
-    jmp  main_loop
+    jmp  .process_events
 key_right:
     call MoveRight
-    jmp main_loop
+    jmp .process_events
 key_down:
     call MoveDown
-    jmp main_loop
+    jmp .process_events
 key_up:
     call ShiftUp
-    jmp main_loop
+    jmp .process_events
 pressed_enter:
     movq $1, game_screen(%rip)
-    jmp main_loop
+    jmp .process_events
 cleanup_all:
     movq bg_texture(%rip), %rdi
     call SDL_DestroyTexture
