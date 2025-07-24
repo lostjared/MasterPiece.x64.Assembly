@@ -20,6 +20,7 @@
     .comm score, 4
     .globl renderer_ptr 
     .globl score
+    .lcomm last_key_time, 4
 .section .text
     .extern SDL_Init
     .extern SDL_CreateWindow
@@ -130,14 +131,12 @@ main:
 #init screen
     movq $0, game_screen(%rip)
 main_loop:
-    # Process all pending events
+    
 .process_events:
     movq $event_buffer, %rdi
     call SDL_PollEvent
     testl %eax, %eax
-    jz render_frame            # No more events? Render frame
-    
-    # Process event (your existing code)
+    jz render_frame
     movl event_buffer(%rip), %eax
     cmpl $0x100, %eax
     je  cleanup_all
@@ -155,6 +154,13 @@ main_loop:
     cmpl $0x300, %eax
     jne check_mouse
 .skip_mouse:
+    call SDL_GetTicks
+    mov %eax, %ecx
+    mov last_key_time(%rip), %edx
+    sub %edx, %ecx
+    cmp $120, %ecx           
+    jb .process_events       
+    mov %eax, last_key_time(%rip)
     movl event_buffer+20(%rip), %eax
     cmpl $0x40000050, %eax
     je  key_left
