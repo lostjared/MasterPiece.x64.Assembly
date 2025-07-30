@@ -57,7 +57,8 @@ main:
     push %rbp
     mov %rsp, %rbp
     sub $32, %rsp
-    movq $0, %rdi         
+    movq $0, %rdi
+    movl $0, -8(%rbp)         
     call time
     movq %rax, %rdi
     call srand
@@ -135,8 +136,8 @@ main_loop:
 .process_events:
     movq $event_buffer, %rdi
     call SDL_PollEvent
-    testl %eax, %eax
-    jz render_frame
+    cmp $0, %eax
+    je render_frame
     movl event_buffer(%rip), %eax
     cmpl $0x100, %eax
     je  cleanup_all
@@ -192,6 +193,7 @@ check_mouse:
     movq $1, game_screen(%rip)
     jmp .process_events
 render_frame:
+
     movq renderer_ptr(%rip), %rdi
     movl $0, %esi             
     movl $0, %edx           
@@ -274,6 +276,8 @@ pressed_enter:
     movq $1, game_screen(%rip)
     jmp .process_events
 cleanup_all:
+    movq intro_texture(%rip), %rdi
+    call SDL_DestroyTexture
     movq bg_texture(%rip), %rdi
     call SDL_DestroyTexture
     movq renderer_ptr(%rip), %rdi
