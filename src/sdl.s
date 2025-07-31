@@ -283,10 +283,10 @@ cleanup_all:
     movq renderer_ptr(%rip), %rdi
     call SDL_DestroyRenderer
 cleanup_window:
-    call quit_text
     movq window_ptr(%rip), %rdi
     call SDL_DestroyWindow
 cleanup_and_exit:
+    call quit_text
     call SDL_Quit
     mov $0, %edi
     call exit
