@@ -1,7 +1,7 @@
 .section .data
     font_name: .asciz "font.ttf"
     font_error: .asciz "Error loading font"
-    render_error: .asciz "Render Text Failred"
+    render_error: .asciz "Render Text Failed"
     font_loaded: .asciz "Font loaded."
 .section .bss
     .lcomm font_ptr, 8
