@@ -29,22 +29,28 @@ FillGrid:
     push %rbp
     mov %rsp, %rbp
     push %rbx
+    push %r12
+    push %r13
+    sub $8, %rsp
     movl %edi, %ebx
-    movl $0, %ecx
+    movl $0, %r12d
     movl $0, score(%rip)
 fill_y:
-    movl $0, %r9d
+    movl $0, %r13d
 fill_x:
     movl %ebx, %edi
-    movl %ecx, %esi
-    movl %r9d, %edx
+    movl %r12d, %esi
+    movl %r13d, %edx
     call SetGrid
-    inc %r9d    
-    cmpl $18, %r9d             
+    inc %r13d    
+    cmpl $18, %r13d             
     jl fill_x
-    inc %ecx    
-    cmpl $25, %ecx             
+    inc %r12d    
+    cmpl $25, %r12d             
     jl fill_y
+    add $8, %rsp
+    pop %r13
+    pop %r12
     pop %rbx
     mov %rbp, %rsp
     pop %rbp
@@ -154,7 +160,6 @@ nocolor:
 rand_mod5:
     push %rbp
     mov %rsp, %rbp
-    sub $8, %rsp
     call rand   
     mov $5, %ecx
     cdq                
@@ -393,7 +398,6 @@ CheckMoveDown:
     push %r13
     push %r14
     push %r15
-    sub $8, %rsp           
     
     movl $23, %r12d
 y_loop_move:
@@ -436,7 +440,6 @@ next_cell:
     cmpl $0, %r12d
     jge y_loop_move
 
-    add $8, %rsp           
     pop %r15
     pop %r14
     pop %r13

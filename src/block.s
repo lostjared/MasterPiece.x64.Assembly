@@ -78,7 +78,6 @@ draw_loop:
 MoveLeft:
     push %rbp
     mov %rsp, %rbp
-    sub $8, %rsp
     
     movl x_cord(%rip), %eax
     cmp $0, %eax
@@ -101,7 +100,6 @@ MoveLeft:
     movl %eax, x_cord(%rip)
     
 left_over:
-    add $8, %rsp
     mov %rbp, %rsp
     pop %rbp
     ret
@@ -109,7 +107,6 @@ left_over:
 MoveRight:
     push %rbp
     mov %rsp, %rbp
-    sub $8, %rsp
     
     movl x_cord(%rip), %eax
     cmp $17, %eax
@@ -132,7 +129,6 @@ MoveRight:
     movl %eax, x_cord(%rip)
     
 right_over:
-    add $8, %rsp
     mov %rbp, %rsp
     pop %rbp
     ret
@@ -146,9 +142,11 @@ MoveDown:
     call GetGrid
     cmpl $-1, %eax
     jne merge_block
+    movl y_cord(%rip), %edi
+    addl $3, %edi
     cmpl $24, %edi
     jg merge_block
-    mov y_cord(%rip), %edi
+    movl y_cord(%rip), %edi
     incl %edi
     mov %edi, y_cord(%rip)
 down_over:
@@ -190,12 +188,14 @@ clearit:
 ShiftUp:
     push %rbp
     mov %rsp, %rbp
+    push %rbx
     movl colors(%rip), %eax
     movl colors+4(%rip), %ebx
     movl colors+8(%rip), %ecx
     movl %ecx, colors(%rip)
     movl %eax, colors+4(%rip)
     movl %ebx, colors+8(%rip)
+    pop %rbx
     mov %rbp, %rsp
     pop %rbp
     ret

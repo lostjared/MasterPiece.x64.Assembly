@@ -29,9 +29,10 @@
 init_text:
     push %rbp   
     mov %rsp, %rbp
-    movl %edi, %r13d
+    sub $16, %rsp
+    movl %edi, -4(%rbp)
     call TTF_Init
-    movl %r13d, %esi
+    movl -4(%rbp), %esi
     lea font_name(%rip), %rdi
     call TTF_OpenFont
     movq %rax, font_ptr(%rip)

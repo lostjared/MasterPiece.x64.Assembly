@@ -8,3 +8,7 @@ find_package(SDL2_ttf REQUIRED)
 add_executable(${PROJECT_NAME} src/sdl.s src/grid.s src/block.s src/font.s)
 target_include_directories(${PROJECT_NAME} PRIVATE ${SDL2_INCLUDE_DIRS})
 target_link_libraries(${PROJECT_NAME} PRIVATE ${SDL2_LIBRARIES} SDL2_ttf::SDL2_ttf)
+add_executable(${PROJECT_NAME}-intel intel_src/sdl.s intel_src/grid.s intel_src/block.s intel_src/font.s)
+target_include_directories(${PROJECT_NAME}-intel PRIVATE ${SDL2_INCLUDE_DIRS})
+target_link_libraries(${PROJECT_NAME}-intel PRIVATE ${SDL2_LIBRARIES} SDL2_ttf::SDL2_ttf)
+

@@ -14,7 +14,7 @@
     .lcomm intro_surface, 8
     .lcomm intro_texture, 8
     .comm renderer_ptr, 8    
-    .lcomm event_buffer, 64  
+    .lcomm event_buffer, 128  
     .lcomm text_buffer, 256
     .lcomm game_screen, 8
     .comm score, 4
@@ -231,7 +231,7 @@ render_frame:
     call SDL_RenderPresent
     call SDL_GetTicks
     mov %eax, -4(%rbp)
-    cmpb $0, -8(%rbp) 
+    cmpl $0, -8(%rbp) 
     je set_last_ticks
     mov -8(%rbp), %edx              
     sub %edx, %eax                  
@@ -297,6 +297,8 @@ exit_error:
     call SDL_Quit
     movl $1, %edi
     call exit
+
+.section .note.GNU-stack,"",@progbits
 
 
 .section .note.GNU-stack, "",@progbits
