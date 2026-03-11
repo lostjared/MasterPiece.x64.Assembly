@@ -300,7 +300,3 @@ exit_error:
     call exit
 
 .section .note.GNU-stack,"",@progbits
-
-
-.section .note.GNU-stack, "",@progbits
-
